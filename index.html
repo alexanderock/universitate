@@ -7,7 +7,7 @@
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	<!-- Optional: Include the jQuery library -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
 	<!-- Optional: Incorporate the Bootstrap JavaScript plugins -->
 	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
@@ -22,35 +22,72 @@
   	js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=625950930848199&version=v2.0";
   	fjs.parentNode.insertBefore(js, fjs);
 	}(document, 'script', 'facebook-jssdk'));
+
+	function doLogin() {
+
+	}
 	</script>
 
 
-	<div class="jumbotron">
-  <h1>Universitatea Politehnica Online</h1> 
-  <p>IBM Hackathon 2014</p> 
+	<div class="jumbotron" style="background:#EDF0F2">
+  <h1>Universitatea Politehnica Online</h1>
+  <p>IBM Hackathon 2014 
+  <img src = "Sigla_UPB_color.jpg" height="42" width="42">
+  </p> 
 </div>
   <div class="wrapper">
-    <form class="form-signin" action="dashboard.html" method="GET">       
+    <form class="form-signin" method="post" action="#" onsubmit="return false;">       
       <h2 class="form-signin-heading">Please login</h2>
-      <input type="text" class="form-control" name="username" placeholder="Email Address" required="" autofocus="" />
-      <input type="password" class="form-control" name="password" placeholder="Password" required=""/>      
+      <input id="username_btn" type="text" class="form-control" name="username" placeholder="Email Address" required="" autofocus="" />
+      <input id="password_btn" type="password" class="form-control" name="password" placeholder="Password" required=""/>      
       <label class="checkbox">
         <input type="checkbox" value="remember-me" id="rememberMe" name="rememberMe"> Remember me
       </label>
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>   
+      <button class="btn btn-lg btn-primary btn-block" onClick="return loginFunction()" value="Reserve" >Login</button>   
       <br>
       <div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="true" data-auto-logout-link="true"></div>
 
     </form>
   </div>
   <script type="text/javascript">
+  	var usr = "";
+
+		function loginFunction() {
+			var username = $('#username_btn').val();
+			var password = $('#password_btn').val();
+			$.ajax({
+				type: "GET",
+				url: "login.php",
+				data: {'username':username, 'password':password},
+				success : function(ok) {
+					if(ok.indexOf('valid') != -1 && ok.indexOf('invalid') == -1) {
+						console.log(ok);
+						window.open("dashboard.html?user="+username,"_self");
+					}
+				}
+			});
+		}
+
+		function getUserByFB(uid) {
+			var username = "";
+			$.ajax({
+				type: "POST",
+				url: "getUserByFB.php",
+				data: {'uid' : uid},
+				success : function(data) {
+					window.usr = data;
+				}
+			});
+			return window.usr;
+		}
 
   	window.onload = function(){
  		 FB.getLoginStatus(function(response) {
  		 if (response.status === 'connected') {
-    		console.log("already connected!");	
-    		window.open("dashboard.html","_self");
+    		console.log("already connected!");
     		var uid = response.authResponse.userID;
+    		var username = getUserByFB(uid);
+    		window.open("dashboard.html?user="+username,"_self");
     		var accessToken = response.authResponse.accessToken;
  	 } else if (response.status === 'not_authorized') {
     // the user is logged in to Facebook, 
@@ -59,14 +96,20 @@
     // the user isn't logged in to Facebook.
  	 }
  	});
-	};	
+	};
+
+
   	window.setInterval(
   		function(){
  		 FB.getLoginStatus(function(response) {
  		 if (response.status === 'connected') {
-    		console.log("already connected!");	
-    		window.open("dashboard.html","_self");
+    		console.log("already connected!");
     		var uid = response.authResponse.userID;
+    		var username = getUserByFB(uid);
+    		console.log(username);
+    		if(!!username) {
+    			window.open("dashboard.html?user="+username,"_self");
+    		}
     		var accessToken = response.authResponse.accessToken;
  	 } else if (response.status === 'not_authorized') {
     // the user is logged in to Facebook, 

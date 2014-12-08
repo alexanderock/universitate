@@ -1,0 +1,193 @@
+
+<html>
+<head>
+	<title>Calendar</title>
+
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<!-- Optional: Include the jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<!-- Optional: Incorporate the Bootstrap JavaScript plugins -->
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+	<script src="calendar-master/zabuto_calendar.min.js"></script>
+<link rel="stylesheet" type="text/css" href="calendar-master/zabuto_calendar.min.css">
+</head>
+<body>
+	<ul class="nav nav-tabs">
+  <li><a href="dashboard.html">Acasa</a></li>
+  <li class="dropdown">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Cursuri
+    <span class="caret"></span></a>
+    <ul class="dropdown-menu" id="a">
+    </ul>
+  </li>
+  <li><a href="avizier.html">Avizier</a></li>
+  <li class="active"><a href="calendar.html">Calendar</a></li>
+  
+</ul>
+<div align="right"><button type="button" class="btn btn-default btn-sm" onclick="logoutButton()" >
+          <span class="glyphicon glyphicon-log-out"></span> Log out
+    </button></div>
+    <script type="text/javascript">
+    (function(d, s, id) {
+  	var js, fjs = d.getElementsByTagName(s)[0];
+  	if (d.getElementById(id)) return;
+  	js = d.createElement(s); js.id = id;
+  	js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=625950930848199&version=v2.0";
+  	fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));
+	function logout() {
+		FB.logout(function(response) {
+  		
+	});
+		console.log("logout!");
+		window.open("index.html","_self");
+	}
+
+	function logoutButton(){
+		FB.getLoginStatus(function(response) {
+ 		 if (response.status === 'connected') {
+ 		 	console.log("logout!");
+			logout();    		
+    		//var uid = response.authResponse.userID;
+    		//var accessToken = response.authResponse.accessToken;
+ 	 } else if (response.status === 'not_authorized') {
+    // the user is logged in to Facebook, 
+    // but has not authenticated your app
+	  } else {
+    	window.open("index.html","_self");
+ 	 }
+ 	})};
+		</script>
+
+	<div id="my-calendar"></div>
+
+<!-- use fixed data -->
+<div class="container-fluid">
+	<div class="container-fluid" >
+		<div class="homeworks"><h2><span class="glyphicon glyphicon-tower"></span> Homework<h2></div>
+	</div>
+	<div class="container-fluid" >
+	<div  class="exams"><h2> <span class="glyphicon glyphicon-calendar"></span>Exams</h2></div>
+	</div>
+</div>
+<script type="application/javascript">
+var user = location.search.split('user=')[1];
+console.log(user);
+
+/*var eventData = [
+    {"date":"2015-01-01","badge":false,"title":"Example 1"},
+    {"date":"2015-01-02","badge":true,"title":"Example 2"}
+];*/
+//var events = [{type:"exam",text:"Informatics midterm",date:"2015-01-01"},{type:"homework",text:"homework1",date:"2015-01-02"}];
+
+$(document).ready(function () {
+
+$.ajax({
+				type: "POST",
+				url: "courses.php",
+				success : function(data) {
+					var courses =[];
+					var note = [];
+					stringNews = data;
+					var strings = stringNews.split(";");
+					for(var v in strings){
+				if(v != 0){
+					var strings2 = strings[v].split(",");
+					var obj = strings2[0];
+					courses[v] = obj;
+					var obj2 = {"materie":obj,"midterm":strings2[3],"final":strings2[4]};
+					note[v] =obj2;
+				}
+			}
+			for(var v in courses){
+			$('#a').append("<li><a href=\"cursuri.html?course="+courses[v]+"\">"+courses[v]+"</a></li>");
+			}
+		}
+	});
+
+
+
+
+
+
+
+
+
+
+$.ajax({
+				type: "POST",
+				url: "courses.php",
+				success : function(data) {
+					var i=0;
+					
+					console.log(data);
+					stringNews = data;
+					var strings = stringNews.split(";");
+					var events = [];
+					for(var v in strings){
+				if(v != 0){
+					var strings2 = strings[v].split(",");
+				console.log(strings2[14]);
+				var obj = {"type":"homework","text":strings2[14],"date":strings2[16]};
+				var obj2 = {"type":"exam","text":strings2[0] + " "+ strings2[1],"date":strings2[2]};
+				events[i]=obj;
+				i+=1;
+				events[i]=obj2;
+				i+=1;
+				}
+			}
+
+	var eventData = [];
+	for(var v in events){
+	console.log(events[v]);
+	if(events[v].type == "exam"){
+		console.log(events[v]);
+		var newObj= {"date":events[v].date,"badge":true,"title":events[v].text};
+		eventData[v] = newObj;
+	}
+	else{
+		var newObj= {"date":events[v].date,"badge":false,"title":events[v].text};
+		eventData[v] = newObj;
+	}
+}
+$("#my-calendar").zabuto_calendar({
+  data: eventData,
+  today:true,
+  action: function(){
+                console.log(this.id);
+                var n = this.id.lastIndexOf("_")+1;
+                var date = this.id.substring(n,this.id.length);
+                console.log(date);
+                for(var v in events){
+                	if(events[v].date == date){
+                		alert("You have "+ events[v].text+"on date :" +events[v].date);
+                	}
+                }
+         }
+});
+function generateProblems(){
+	for(var v in events){
+		console.log(v);
+		if(events[v].type == "exam"){
+			console.log("exam");
+			$('.exams').append("<p><h3><font color = \"#E67129\">Exam</font> at "+events[v].text+" </h3><h4>On "+events[v].date+"</h4></p>");
+		}
+		else{
+			$('.homeworks').append("<p><h3><font color=\"#F2C372\">Homework</font> at "+events[v].text+"</h3><h4>On "+events[v].date+"</h4></p>");
+		}
+	}
+}
+generateProblems();
+	}
+	});
+});
+
+
+</script>
+
+</body>
+</html>

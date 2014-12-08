@@ -15,9 +15,123 @@
 
 </head>
 <body>
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#">Acasa</a></li>
+  <li class="dropdown">
+    <a class="dropdown-toggle" data-toggle="dropdown" >Cursuri
+    <span class="caret"></span></a>
+    <ul class="dropdown-menu" id="a">
+      <!--<li><a href="#">Matematica</a></li>-->
+      <!--<li><a href="#">Programarea calculatoarelor</a></li>-->
+      <!--<li><a href="#">Algoritmi paraleli si distribuiti</a></li> -->
+    </ul>
+  </li>
+  <li><a href="avizier.html">Avizier</a></li>
+  <li><a href="calendar.html">Calendar</a></li>
+  
+</ul>
+<div align="right"><button type="button" class="btn btn-default btn-sm" onclick="logoutButton()" >
+          <span class="glyphicon glyphicon-log-out"></span> Log out
+    </button></div>
+<div class="container-fluid">
+<div class="jumbotron">
+  <h1>Universitatea Politehnica Online</h1> 
 
+  <p><h1>Dashboard</h1></p> 
+</div>
+</div>
+<div class="container-fluid">
+<div class="row">
+  <div class="col-md-4" >
+    <p><h2>Latest news</h2></p>
+    <div class = "news"></div>
+  </div>
+  <div class="col-md-4" > 
+    <p><h2>Deadlines</h2></p>
+    <div class = "deadlines"></div>
+  </div>
+  <div class="col-md-4" >
+  	<h3>Share with friends</h3>
+  	<div class="fb-share-button" data-href="" data-layout="button"></div><br>
+  	<iframe src="http://chatwing.com/chatbox/a26b3e6a-ed87-4cdb-9669-c462a216f478" width="350" height="420" frameborder="0" scrolling="0">Chat with friends</iframe>
+  </div>
+  </div>
 
 <script>
+var user = location.search.split('user=')[1];
+console.log(user);
+
+//var news = [{from:"dan",text:"I love Apple"},{from:"michael",text:"You all have not passed your course"}];
+
+//var deadlines = [{course:"Informatica",homework:"APD",deadline:"6 decembrie 2014"}];
+window.onload = function(){
+	var news = [];
+	var stringNews;
+	$.ajax({
+				type: "POST",
+				url: "news.php",
+				success : function(data) {
+					console.log(data);
+					stringNews = data;
+					console.log(stringNews);
+			var strings = stringNews.split(";");
+			for(var v in strings){
+			if(v != 0){
+			var strings2 = strings[v].split(",");
+			var fromData = strings2[0];
+			var textData = strings2[1];
+
+			$('.news').append("<p><h4><span class=\"glyphicon glyphicon-stop\"></span> Utilizatorul "+fromData+" a anuntat:</h4><h5>"+textData +"</h5></p>"); 
+	}}
+				}
+			});
+
+	$.ajax({
+				type: "POST",
+				url: "courses.php",
+				success : function(data) {
+					console.log(data);
+					stringNews = data;
+					console.log(stringNews);
+			var strings = stringNews.split(";");
+			for(var v in strings){
+			if(v != 0){
+			var strings2 = strings[v].split(",");
+			var courseData = strings2[14];
+			var homeworkData = strings2[15];
+			var deadlineData = strings2[16];
+			$('.deadlines').append("<div class=\"container\"><p><h4><span class=\"glyphicon glyphicon-book\"></span> Aveti <font color=\"red\">deadline</font> la materia</h4><h3>"+ courseData+"</h3><h4> data de <br>"+deadlineData+"<h4></p></div>"); 
+	}}
+				}
+	});
+
+	$.ajax({
+				type: "POST",
+				url: "courses.php",
+				success : function(data) {
+					var courses =[];
+					var note = [];
+					stringNews = data;
+					var strings = stringNews.split(";");
+					for(var v in strings){
+				if(v != 0){
+					var strings2 = strings[v].split(",");
+					var obj = strings2[0];
+					courses[v] = obj;
+					var obj2 = {"materie":obj,"midterm":strings2[3],"final":strings2[4]};
+					note[v] =obj2;
+				}
+			}
+			for(var v in courses){
+			$('#a').append("<li><a href=\"cursuri.html?course="+courses[v]+"\">"+courses[v]+"</a></li>");
+			}
+		}
+	});
+
+
+
+
+}
 (function(d, s, id) {
   	var js, fjs = d.getElementsByTagName(s)[0];
   	if (d.getElementById(id)) return;
@@ -51,33 +165,10 @@
 </script>
 
 
-	/*(function(d, s, id) {
-  	var js, fjs = d.getElementsByTagName(s)[0];
-  	if (d.getElementById(id)) return;
-  	js = d.createElement(s); js.id = id;
-  	js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=625950930848199&version=v2.0";
-  	fjs.parentNode.insertBefore(js, fjs);
-	}(document, 'script', 'facebook-jssdk'));
-	window.setInterval(
-  		function(){
- 		 FB.getLoginStatus(function(response) {
- 		 if (response.status === 'connected') {
-    		console.log("already connected!");	
-    		//window.open("dashboard.html","_self");
-    		var uid = response.authResponse.userID;
-    		var accessToken = response.authResponse.accessToken;
- 	 } else if (response.status === 'not_authorized') {
-    // the user is logged in to Facebook, 
-    // but has not authenticated your app
-	  } else {
-    	window.open("index.html","_self");
- 	 }
- 	});
+<!-- Begin chatwing.com chatbox -->
+
+<!-- End chatwing.com chatbox -->	
 	
-	}, 500); */
-	<button type="button" class="btn btn-default btn-sm" onclick="logoutButton()">
-          <span class="glyphicon glyphicon-log-out"></span> Log out
-    </button>
 <!--<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="true" data-auto-logout-link="true"></div>-->
 </body>
 </html>

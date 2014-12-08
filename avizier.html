@@ -1,0 +1,139 @@
+<html>
+<head>
+	<title>Avizier</title>
+
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<!-- Optional: Include the jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<!-- Optional: Incorporate the Bootstrap JavaScript plugins -->
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+	<script src="calendar-master/zabuto_calendar.min.js"></script>
+<link rel="stylesheet" type="text/css" href="calendar-master/zabuto_calendar.min.css">
+</head>
+<body>
+	<ul class="nav nav-tabs">
+  <li><a href="dashboard.html">Acasa</a></li>
+  <li class="dropdown">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Cursuri
+    <span class="caret"></span></a>
+    <ul class="dropdown-menu" id="a">
+    </ul>
+  </li>
+  <li class="active"><a href="avizier.html">Avizier</a></li>
+  <li ><a href="calendar.html">Calendar</a></li>
+  
+</ul>
+<div align="right"><button type="button" class="btn btn-default btn-sm" onclick="logoutButton()" >
+          <span class="glyphicon glyphicon-log-out"></span> Log out
+    </button></div>
+    <script type="text/javascript">
+
+      var user = location.search.split('user=')[1];
+console.log(user);
+//we done this because bootstrap overlaps our style and we cant center a gliph span
+    var space = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp";
+
+    (function(d, s, id) {
+  	var js, fjs = d.getElementsByTagName(s)[0];
+  	if (d.getElementById(id)) return;
+  	js = d.createElement(s); js.id = id;
+  	js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=625950930848199&version=v2.0";
+  	fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));
+	function logout() {
+		FB.logout(function(response) {
+  		
+	});
+		console.log("logout!");
+		window.open("index.html","_self");
+	}
+
+	function logoutButton(){
+		FB.getLoginStatus(function(response) {
+ 		 if (response.status === 'connected') {
+ 		 	console.log("logout!");
+			logout();    		
+    		//var uid = response.authResponse.userID;
+    		//var accessToken = response.authResponse.accessToken;
+ 	 } else if (response.status === 'not_authorized') {
+    // the user is logged in to Facebook, 
+    // but has not authenticated your app
+	  } else {
+    	window.open("index.html","_self");
+ 	 }
+ 	})};
+
+   
+    window.onload =function(){
+      $.ajax({
+        type: "POST",
+        url: "courses.php",
+        success : function(data) {
+          var courses =[];
+          var note = [];
+          stringNews = data;
+          var strings = stringNews.split(";");
+          for(var v in strings){
+        if(v != 0){
+          var strings2 = strings[v].split(",");
+          var obj = strings2[0];
+          courses[v] = obj;
+          var obj2 = {"materie":obj,"midterm":strings2[3],"final":strings2[4]};
+          note[v] =obj2;
+        }
+      }
+      for(var v in courses){
+      $('#a').append("<li><a href=\"cursuri.html?course="+courses[v]+"\">"+courses[v]+"</a></li>");
+      }
+    }
+  });
+      $.ajax({
+        type: "POST",
+        url: "avizier.php",
+        success : function(data) {
+          console.log(data);
+          stringNews = data;
+          console.log(stringNews);
+          var strings = stringNews.split(";");
+      for(var v in strings){
+      if(v != strings.length-1){
+      var strings2 = strings[v].split(",");
+        $('.avizier').append(space+"<span class=\"glyphicon glyphicon-certificate\"></span><p> A postat: "+strings2[0]+"<br>" + "Despre: " +strings2[1]+"</p>");
+      }
+    }
+  }});
+    }
+ 
+    function storeText(user,data){
+    var data =$('#post').val();
+    var user = "orhean";
+    $.ajax({
+      type:"POST",
+      url:"storeAvizier.php",
+      data:{'user':user,'text':data},
+      success: function(data){
+        alert("Posted!");
+        location.reload();
+      }
+    });
+  }
+		</script>
+    <div class="jumbotron">
+    <h2> <span class="glyphicon glyphicon-pushpin"></span> Avizier</h2>
+    <div class="avizier"></div>
+
+    </div>
+    <div class="class=”col-lg-4 col-md-4 col-sm-5″">
+  <div class="form-group">
+  <label for="comment">New Post:</label>
+  <textarea class="form-control" rows="2" cols="4" id="post"></textarea>
+  </div>
+  <button type="button" onclick="storeText()" class="btn btn-default">Post!</button>
+  </div>
+
+    </body>
+    </html>

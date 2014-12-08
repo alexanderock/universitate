@@ -1,0 +1,141 @@
+<html>
+<head>
+	<title>Calendar</title>
+
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<!-- Optional: Include the jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<!-- Optional: Incorporate the Bootstrap JavaScript plugins -->
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+	<script src="calendar-master/zabuto_calendar.min.js"></script>
+<link rel="stylesheet" type="text/css" href="calendar-master/zabuto_calendar.min.css">
+</head>
+<body>
+	<ul class="nav nav-tabs">
+  <li><a href="dashboard.html">Acasa</a></li>
+  <li class="dropdown" id="active">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Cursuri
+    <span class="caret"></span></a>
+    <ul class="dropdown-menu" id="a">
+    </ul>
+  </li>
+  <li><a href="avizier.html">Avizier</a></li>
+  <li ><a href="calendar.html">Calendar</a></li>
+  
+</ul>
+<div align="right"><button type="button" class="btn btn-default btn-sm" onclick="logoutButton()" >
+          <span class="glyphicon glyphicon-log-out"></span> Log out
+    </button></div>
+    <script type="text/javascript">
+    (function(d, s, id) {
+  	var js, fjs = d.getElementsByTagName(s)[0];
+  	if (d.getElementById(id)) return;
+  	js = d.createElement(s); js.id = id;
+  	js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=625950930848199&version=v2.0";
+  	fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));
+	function logout() {
+		FB.logout(function(response) {
+  		
+	});
+		console.log("logout!");
+		window.open("index.html","_self");
+	}
+
+	function logoutButton(){
+		FB.getLoginStatus(function(response) {
+ 		 if (response.status === 'connected') {
+ 		 	console.log("logout!");
+			logout();    		
+    		//var uid = response.authResponse.userID;
+    		//var accessToken = response.authResponse.accessToken;
+ 	 } else if (response.status === 'not_authorized') {
+    // the user is logged in to Facebook, 
+    // but has not authenticated your app
+	  } else {
+    	window.open("index.html","_self");
+ 	 }
+ 	})};
+		</script>
+
+
+<script type="application/javascript">
+var user = location.search.split('user=')[1];
+console.log(user);
+var course = location.search.split('course=')[1];
+console.log(course);
+
+//var courses = ["apd","rl"];
+//var note = [{"materie":"matem","midterm":9,"final":10},{"materie":"info","midterm":9,"final":4},{"materie":"romana","midterm":3,"final":10}];
+$(document).ready(function () {
+
+$.ajax({
+				type: "POST",
+				url: "courses.php",
+				success : function(data) {
+					var courses =[];
+					var note = [];
+					stringNews = data;
+					var strings = stringNews.split(";");
+					for(var v in strings){
+				if(v != 0){
+					var strings2 = strings[v].split(",");
+					var obj = strings2[0];
+					courses[v] = obj;
+					var obj2 = {"materie":obj,"midterm":strings2[3],"final":strings2[4]};
+					note[v] =obj2;
+				}
+			}
+			for(var v in courses){
+			$('#a').append("<li><a href=\"cursuri.html?course="+courses[v]+"\">"+courses[v]+"</a></li>");
+			}
+				
+   	$('#afisare').append("<table class=\"table table-condensed\"><thead><tr><th>Materie</th><th>Midterm</th><th>Final</th></tr></thead><tbody class=\"tablebody\"></tbody></table>");
+	for(var v in note){
+		$('.tablebody').append("<tr><td>" + note[v].materie+"</td><td>" +note[v].midterm+"</td><td>"+note[v].final+"</td></tr>");
+	}}})});
+
+
+
+
+
+</script>
+<div class="row">
+  <div class="col-md-8" id="afisare">
+
+<div class="jumbotron">
+  <h2><span class="glyphicon glyphicon-stats"></span> Catalog</h2> 
+  </div>
+
+
+
+   </div>
+   <div class="col-md-3" id="desfasurator">
+   	<h3><span class="glyphicon glyphicon-list"></span> Desfasurator Materie</h3><br>
+   	 <label for="sel1">Cursuri APD</label>
+          <select class="form-control" id="sel1" onchange="location = this.options[this.selectedIndex].value;">
+            <option value ="5. Cautare paralela.pdf" class="popup">Curs 1 APD</option>
+            <option value="4. Semafoare. Probleme clasice.pdf" class="popup">Curs 2 APD</option>
+          </select>
+          <br>
+      <label for="sel1">Cursuri RL</label>
+          <select class="form-control" id="sel1" onchange="location = this.options[this.selectedIndex].value;">
+            <option value="rl_curs_00.pdf" class="popup">Curs 1 RL</a></option>
+            <option value="rl_curs_01.pdf" class="popup">Curs 2 RL</a></option>
+          </select>
+          <br>
+   	 <div class="container-fluid" id="desfasurator">
+
+   	 </div>
+   </div>
+   </div>
+   <script type="text/javascript">
+		   	
+   </script>
+
+</body>
+</html>
